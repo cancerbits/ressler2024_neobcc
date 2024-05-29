@@ -1,0 +1,561 @@
+---
+title: "INIT"
+author: "Maud PLASCHKA"
+date: '`r format(Sys.time(), "%B %d, %Y %H:%M:%S %Z")`'
+output:
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: kable
+
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this report, we generate the single cell transcriptomic seurat object, as described:
+
+ 
+- Ambiant RNA correction using SoupX: per samples, raw counts are corrected using SoupX with a manual list of specific genes.
+
+- Seurat workflow: corrected counts are merge in a single Seurat object, filtered and normalized (SCTransform). 
+
+- Clustering: After normalization, Ig genes are removed from the variable genes to avoid multiple B and plasma cells clusters driven by random i chains.
+
+- Reference mapping: single cell data are mapped to the Tabula Sapiens Skin reference and Azimuth PBMC reference using azimuth reference mapping.
+Note: This step can be skipped for downstream analysis, as the downstream analysis is based on manual, consensus annotations.
+
+- Manual final annotation
+
+# Load libraries and paths
+
+
+```{r lib}
+library(hdf5r)
+library(Seurat)
+library(SoupX)
+library(canceRbits)
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+library(DT)
+library(Azimuth)
+library(SCpubr)
+library(DElegate)
+
+# Path to count directories
+path <-  "/bioinf_isilon/Research/HALBRITTER/Internal/data/neoBCC29032022/biomedical-sequencing.at/projects/BSA_0460_MF_BCC_1ab413522d3e4d2d959b1b8f2681cf06/COUNT"
+
+# Path to directories containing transcriptomic data
+transcriptomic_dir <- dir(path = path, pattern = "_transcriptome", all.files = FALSE,
+                full.names = TRUE)
+
+# Paths to filtered_feature_bc_matrix.h5 
+h5_files <- lapply(transcriptomic_dir, FUN = function (x) list.files(path = x, pattern = "filtered_feature_bc_matrix.h5", full.names = TRUE) )
+
+```
+
+# Select (transcriptomic) samples 
+
+```{r sample_select}
+
+# subselect post-treated samples for the BCC 1st publication
+samples <- lapply(h5_files, FUN = function (x) gsub("/bioinf_isilon/Research/HALBRITTER/Internal/data/neoBCC29032022/biomedical-sequencing.at/projects/BSA_0460_MF_BCC_1ab413522d3e4d2d959b1b8f2681cf06/COUNT/", "", x) )
+samples <- lapply(samples, FUN = function(x) gsub("_transcriptome/filtered_feature_bc_matrix.h5", "",x))
+
+samples <- samples[samples %in% c("NeoBCC004_post", "NeoBCC005_post", "NeoBCC006_post", "NeoBCC007_post", "NeoBCC008_post", "NeoBCC010_post", "NeoBCC011_post", "NeoBCC012_post", "NeoBCC014_post", "NeoBCC015_post", "NeoBCC017_post", "NeoBCC018_post")]
+h5_files <- h5_files[ grepl(paste(samples, collapse ='|'), h5_files) ]
+
+# show metadata, please adapt the path to metadata/ADDITIONAL_METADATA.txt
+additional_metadata <- read.csv(paste0(Sys.getenv("HOME"),"/ADDITIONAL_METADATA.txt"), sep = '\t')
+additional_metadata <- additional_metadata[additional_metadata$sample %in% samples,]
+
+DT::datatable(additional_metadata, caption = ("Samples selected for Ressler et al. 2024"), 
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+# Generate uncorrected merged dataset
+
+In this section, we merged uncorrected counts, perform QC filtering (using cb_filter_count_matrix), SCTransform normalization and usual seurat workflow. Specific genes has be identified using FindMarkers (top 5 marker genes per clusters, pval_adj < 0,0005). Specific genes will then be used in the next section to correct ambiant RNA. 
+
+## Merge uncorrected counts
+
+```{r merge_uncorrected_counts,  include=TRUE}
+h5_read <- lapply(h5_files, Read10X_h5)
+h5_seurat <- lapply(h5_read, CreateSeuratObject)
+seurat_noSoupX  <- merge(h5_seurat[[1]], y = h5_seurat[2:length(h5_seurat)], 
+                  add.cell.ids = unlist(samples), project = "noSoupX")
+```
+
+## QC filtering
+
+```{r QC, eval=TRUE, include=TRUE}
+
+seurat_noSoupX <- cb_filter_count_matrix(counts = seurat_noSoupX@assays$RNA@counts) 
+
+fig <- wrap_plots(seurat_noSoupX$figures) +
+  plot_annotation(title = seurat_noSoupX$fig_title)
+show(fig)
+```
+
+## Seurat workflow
+
+```{r seurat, eval=TRUE, fig.height=35, fig.width=30, include=TRUE}
+gc()
+srat    <- SCTransform(seurat_noSoupX$filtered, verbose = F, conserve.memory = TRUE)
+gc()
+srat    <- RunPCA(srat, verbose = F)
+srat    <- RunUMAP(srat, dims = 1:30, verbose = F)
+srat    <- FindNeighbors(srat, dims = 1:30, verbose = F)
+srat    <- FindClusters(srat, verbose = T)
+  
+s.markers <- FindAllMarkers(srat, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = FALSE, max.cells.per.ident = 100)
+
+top <- s.markers %>%
+    group_by(cluster) %>%
+    filter( p_val_adj < 0.0005) %>%
+    top_n(n =  5, wt = avg_log2FC) 
+
+
+```
+
+
+
+
+
+# Generate ambient RNA corrected merged dataset
+
+## Manual list of specific genes
+
+We used the top 5 markers genes as specific genes for the SoupX manual ambient RNA removal. 
+
+
+```{r top5_specific_genes, echo = TRUE}
+DT::datatable(top, caption = ("Specific genes for SoupX ambient RNA removal"), 
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+```
+
+## Ambiant RNA filtering
+
+```{r soupx, include=TRUE}
+gc()
+# initiate the manual SoupX corrected seurat object 
+sample <- samples[1]
+dir <- transcriptomic_dir[grepl(sample, transcriptomic_dir)]
+
+filt.matrix <- Read10X_h5(paste0(dir, "/filtered_feature_bc_matrix.h5"),use.names = T)
+raw.matrix  <- Read10X_h5(paste0(dir, "/raw_feature_bc_matrix.h5"),use.names = T)
+  
+# Prepare inputs for SoupX
+        
+  ## We will here prepare the input for the SoupX RNA correction
+        
+  ## Make a “SoupChannel”, the object needed to run SoupX.
+        soup.channel  <- SoupChannel(raw.matrix, filt.matrix)
+
+    ### create a seurat object from the sparce matrix
+        srat    <- CreateSeuratObject(counts = filt.matrix)
+        srat    <- SCTransform(srat, verbose = F, conserve.memory = TRUE)
+        srat    <- RunPCA(srat, verbose = F)
+        srat    <- RunUMAP(srat, dims = 1:30, verbose = F)
+        srat    <- FindNeighbors(srat, dims = 1:30, verbose = F)
+        srat    <- FindClusters(srat, verbose = T)
+        
+    ### After clustering is obtained, it can be added to the channel using setClusters. setDR is useful for visualizations.
+        meta    <- srat@meta.data
+        umap    <- srat@reductions$umap@cell.embeddings
+        soup.channel  <- setClusters(soup.channel, setNames(meta$seurat_clusters, rownames(meta)))
+        soup.channel  <- setDR(soup.channel, umap)
+    
+   
+    ### Run SoupX manual
+        nonExpressedGeneList = list(top$gene)
+        useToEst = estimateNonExpressingCells(soup.channel, nonExpressedGeneList = nonExpressedGeneList)
+       
+        soup.channel = calculateContaminationFraction(soup.channel, nonExpressedGeneList = nonExpressedGeneList, useToEst = useToEst, forceAccept = TRUE)
+
+        adj.matrix  <- adjustCounts(soup.channel, roundToInt = T)
+        srat_m0 = CreateSeuratObject(adj.matrix)
+
+        srat_m0 <- AddMetaData(srat_m0, srat$seurat_clusters, col.name = "seurat.clusters.unmerged")
+        srat_m0 <- AddMetaData(srat_m0, rep(sample, length(srat_m0$nCount_RNA )), col.name = "sample")
+
+        
+        
+        
+        
+# run the loop for all patients and merge the seurat
+for (sample in samples[2:length(samples)]){
+
+  dir <- transcriptomic_dir[grepl(sample, transcriptomic_dir)]
+  
+  
+  filt.matrix <- Read10X_h5(paste0(dir, "/filtered_feature_bc_matrix.h5"),use.names = T)
+  raw.matrix  <- Read10X_h5(paste0(dir, "/raw_feature_bc_matrix.h5"),use.names = T)
+  
+  # Prepare inputs for SoupX
+        
+        ## We will here prepare the input for the SoupX RNA correction
+        
+        ## Make a “SoupChannel”, the object needed to run SoupX.
+        soup.channel  <- SoupChannel(raw.matrix, filt.matrix)
+
+    # create a seurat object from the sparce matrix
+        srat    <- CreateSeuratObject(counts = filt.matrix)
+        srat    <- SCTransform(srat, verbose = F)
+        srat    <- RunPCA(srat, verbose = F)
+        srat    <- RunUMAP(srat, dims = 1:30, verbose = F)
+        srat    <- FindNeighbors(srat, dims = 1:30, verbose = F)
+        srat    <- FindClusters(srat, verbose = T)
+        
+    # After clustering is obtained, it can be added to the channel using setClusters. setDR is useful for visualizations.
+        meta    <- srat@meta.data
+        umap    <- srat@reductions$umap@cell.embeddings
+        soup.channel  <- setClusters(soup.channel, setNames(meta$seurat_clusters, rownames(meta)))
+        soup.channel  <- setDR(soup.channel, umap)
+    
+    
+        
+    # Run SoupX manual
+        nonExpressedGeneList = list(top$gene)
+        useToEst = estimateNonExpressingCells(soup.channel, nonExpressedGeneList = nonExpressedGeneList)
+       
+        soup.channel = calculateContaminationFraction(soup.channel, nonExpressedGeneList = nonExpressedGeneList, useToEst = useToEst, forceAccept = TRUE)
+
+        adj.matrix  <- adjustCounts(soup.channel, roundToInt = T)
+        srat_m = CreateSeuratObject(adj.matrix)
+
+        srat_m <- AddMetaData(srat_m, srat$seurat_clusters, col.name = "seurat.clusters.unmerged")
+        srat_m <- AddMetaData(srat_m, rep(sample, length(srat_m$nCount_RNA )), col.name = "sample")
+
+        
+        srat_m0 <-  merge(srat_m0, y = srat_m, 
+                  project = "manualSoupX")
+
+       
+                 
+}
+      
+     
+
+        gc()
+
+```
+
+
+## QC - Filter corrected counts
+```{r}
+counts <- srat_m0@assays$RNA@counts
+filter_out <- cb_filter_count_matrix(counts = counts, sample_id = "MergedSoupXmanual")
+fig <- wrap_plots(filter_out$figures) +
+plot_annotation(title = filter_out$fig_title)
+show(fig)
+
+
+```
+
+
+## Seurat workflow
+
+
+```{r include=TRUE}
+gc()
+srat    <- SCTransform(filter_out$filtered, verbose = F, conserve.memory = TRUE)
+gc()
+
+srat <- AddMetaData(srat, srat_m0@meta.data[colnames(srat_m0) %in% colnames(srat), "sample" ], col.name = "sample")
+# exclude IG genes from variable features
+vf <- VariableFeatures(srat)
+exclude <- grepl('^IG', vf)
+VariableFeatures(srat) <- vf[!exclude]
+
+srat    <- RunPCA(srat, verbose = F)
+srat    <- RunUMAP(srat, dims = 1:30, verbose = F)
+srat    <- FindNeighbors(srat, dims = 1:30, verbose = F)
+srat    <- FindClusters(srat, verbose = T)
+
+
+```
+
+
+
+
+## Skin Tabula Sapiens annotation transfer using Azimuth reference mapping
+
+Note, you can do the same with the PBMC reference, changing the reference path. At the end of the report, we transfer both label transfer from Azimuth PBMC, TB Skin reference and the manual annotations.
+
+```{r Azimuth2, error=TRUE}
+# change path to your folder containing the TS Skin reference
+reference_TS_skin <- readRDS(paste0(Sys.getenv("RESOURCES"), "/tabula_sapiens/TS_skin_AzimuthReference.rds"))
+
+rm(srat_m, srat_m0, raw.matrix, filt.matrix, soup.channel)
+gc()
+#query <- subset(srat, subset = sample %in% levels(as.factor(srat$sample))[1:9])
+
+# Preprocess with SCTransform
+query_skin <- SCTransform(
+  object = srat,
+  assay = "RNA",
+  new.assay.name = "refAssay",
+  residual.features = rownames(x = reference_TS_skin),
+  reference.SCT.model = reference_TS_skin@assays[["refAssay"]]@SCTModel.list$refmodel,
+  method = 'glmGamPoi',
+  ncells = 2000,
+  n_genes = 2000,
+  do.correct.umi = FALSE,
+  do.scale = FALSE,
+  do.center = TRUE,
+  verbose = FALSE,
+  conserve.memory = TRUE
+)
+gc()
+
+# Find anchors between query and reference
+anchors_skin <- FindTransferAnchors(
+  reference = reference_TS_skin,
+  query = query_skin,
+  k.filter = NA,
+  reference.neighbors = "refdr.annoy.neighbors",
+  reference.assay = "refAssay",
+  query.assay = "refAssay",
+  reference.reduction = "refDR",
+  normalization.method = "SCT",
+  features = intersect(rownames(x = reference_TS_skin), VariableFeatures(object = query_skin)),
+  dims = 1:50,
+  n.trees = 20,
+  mapping.score.k = 100
+)
+
+# Transfer cell type labels and impute protein expression
+#
+# Transferred labels are in metadata columns named "predicted.*"
+# The maximum prediction score is in a metadata column named "predicted.*.score"
+# The prediction scores for each class are in an assay named "prediction.score.*"
+# The imputed assay is named "impADT" if computed
+gc()
+refdata <- lapply(X = "free_annotation", function(x) {
+  reference_TS_skin[[x, drop = TRUE]]
+})
+names(x = refdata) <- "free_annotation"
+
+
+query_skin <- TransferData(
+  reference = reference_TS_skin,
+  query = query_skin,
+  dims = 1:50,
+  anchorset = anchors_skin,
+  refdata = refdata,
+  n.trees = 20,
+  store.weights = TRUE
+)
+
+# Calculate the embeddings of the query data on the reference SPCA
+query_skin <- IntegrateEmbeddings(
+  anchorset = anchors_skin,
+  reference = reference_TS_skin,
+  query = query_skin,
+  reductions = "pcaproject",
+  reuse.weights.matrix = TRUE
+)
+
+# Calculate the query neighbors in the reference
+# with respect to the integrated embeddings
+query_skin[["query_ref.nn"]] <- FindNeighbors(
+  object = Embeddings(reference_TS_skin[["refDR"]]),
+  query = Embeddings(query_skin[["integrated_dr"]]),
+  return.neighbor = TRUE,
+  l2.norm = TRUE
+)
+
+# The reference used in the app is downsampled compared to the reference on which
+# the UMAP model was computed. This step, using the helper function NNTransform,
+# corrects the Neighbors to account for the downsampling.
+
+#' Transform an NN index
+#'
+#' @param object Seurat object
+#' @param meta.data Metadata
+#' @param neighbor.slot Name of Neighbor slot
+#' @param key Column of metadata to use
+#'
+#' @return \code{object} with transfomed neighbor.slot
+#'
+#' @importFrom SeuratObject Indices
+#'
+#' @keywords internal
+#'
+NNTransform <- function(
+  object,
+  meta.data,
+  neighbor.slot = "query_ref.nn",
+  key = 'ori.index'
+) {
+  on.exit(expr = gc(verbose = FALSE))
+  ind <- Indices(object[[neighbor.slot]])
+  ori.index <- t(x = sapply(
+    X = 1:nrow(x = ind),
+    FUN = function(i) {
+      return(meta.data[ind[i, ], key])
+    }
+  ))
+  rownames(x = ori.index) <- rownames(x = ind)
+  slot(object = object[[neighbor.slot]], name = "nn.idx") <- ori.index
+  return(object)
+}
+query_skin <- NNTransform(
+  object = query_skin,
+  meta.data =reference_TS_skin[[]]
+)
+
+# Project the query to the reference UMAP.
+query_skin[["proj.umap"]] <- RunUMAP(
+  object = query_skin[["query_ref.nn"]],
+  reduction.model = reference_TS_skin[["refUMAP"]],
+  reduction.key = 'UMAP_'
+)
+
+
+# Calculate mapping score and add to metadata
+query_skin <- AddMetaData(
+  object = query_skin,
+  metadata = MappingScore(anchors = anchors_skin),
+  col.name = "mapping.score"
+)
+
+annotation <- query_skin$predicted.free_annotation 
+mapping.score <- query_skin$mapping.score
+predicted.score <- query_skin$predicted.free_annotation.score
+
+
+
+# Calculate mapping score and add to metadata
+query_skin <- AddMetaData(
+  object = query_skin,
+  metadata = MappingScore(anchors = anchors_skin),
+  col.name = "mapping.score"
+)
+
+
+```
+
+```{r echo = TRUE, fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+
+
+p1 <- SCpubr::do_DimPlot(sample = query_skin, reduction = "umap", label = TRUE,
+                         legend.nrow = 5
+                         )
+
+p2 <- SCpubr::do_DimPlot(sample = query_skin, reduction = "umap", label = TRUE,
+                         legend.nrow = 5, group.by = "predicted.free_annotation",
+                         )
+
+
+
+
+p1
+p2
+
+p <- SCpubr::do_BarPlot(query_skin,
+                         group.by = "predicted.free_annotation",
+                         split.by = "seurat_clusters",
+                         plot.title = "cell type / cluster ",
+                         position = "fill",
+                   flip = TRUE)
+
+p
+
+```
+
+
+# Add cell cycle information
+```{r echo = TRUE, fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+DefaultAssay(srat) <- "RNA"
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
+
+srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE)
+```
+# Save final Seurat object
+
+Here we had the final manual annotation, and save the Seurat object. This will be the INPUT of every Rmd file to generate the figures of Ressler et al. 2024.
+
+```{r echo = TRUE, fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+final <- read.csv2("Ressler2024_metadata.csv")
+rownames(final) <- final$X
+srat <- AddMetaData(srat, final, col.name = colnames(final))
+
+saveRDS(srat, "20241005_Ressler2024_NeoBCC.Rds")
+```
+
+
+```{r echo=TRUE, fig.height=25, fig.width=25, message=FALSE, warning=FALSE, out.width='100%'}
+
+srat@meta.data$anno_l1 <- factor(srat@meta.data$anno_l1, levels=c("other",
+                                                                 "Mast cells",
+                                                                 "Mono-Mac",
+                                                                 "LC",
+                                                                 "DC",
+                                                                 "pDC",
+                                                                 "Plasma cells",
+                                                                 "B cells" ,
+                                                                 "Proliferating cells",
+                                                                 "Natural killer cells",
+                                                                 "CD8+ T cells",
+                                                                 "Tregs",
+                                                                  "CD4+ T cells" ,
+                                                                 "Melanocytes",
+                                                                 "Endothelial cells",
+                                                                 "Fibroblasts",
+                                                                 "Keratinocytes",
+                                                                 "Malignant cells"))
+colors <- c("Malignant cells" = "#bd0026",
+           "Keratinocytes" = "#dfc27d",
+           "Fibroblasts" = "#f6e8c3",
+           "Endothelial cells" = "#54278f",
+           "Melanocytes" = "#a65628",
+           "CD4+ T cells" = "#b8e186",
+           "Tregs" = "#ae017e",
+           "CD8+ T cells" = "#fbb4ae",
+           "Proliferating cells" = "#b3cde3",
+           "Natural killer cells" = "#9e9ac8",
+           "B cells" = "#7bccc4",
+           "Plasma cells" = "#35978f",
+           "pDC" = "#fe9929",
+           "DC" = "#e7298a",
+           "LC" = "yellow" ,
+           "Mono-Mac" = "#fec44f",
+           "Mast cells" = "#bf812d",
+           "other" = "#bdbdbd")
+
+```
+
+
+
+```{r echo=TRUE, fig.height=8, fig.width=8, message=FALSE, warning=FALSE,  out.width='100%'}
+library(SCpubr)
+
+
+
+library(ggplot2)
+p <- SCpubr::do_DimPlot(sample = srat,
+                  colors.use = colors, 
+                  group.by = "anno_l1",
+                  pt.size=0.5, label = TRUE, 
+                  repel = TRUE, 
+                  legend.position = "none",  
+                  label.color = "black") + 
+     theme_minimal() + 
+     NoLegend() + 
+     theme(text = element_text(size=20))
+
+p
+```
