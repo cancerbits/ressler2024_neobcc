@@ -1,25 +1,27 @@
-# project_template
-Template repository for genomics data analysis projects
+# Code repository for the analysis of single-cell RNA-seq, TCR- and BCR-Seq data presented in Ressler JM et al., 2024
+Maud Plaschka and Florian Halbritter
+St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
-# Usage
+# Repository structure
 
-## Option 1
-Use the "Use this template" button on github.com
+•	project.Dockerfile defines the environment used to carry out all experiments
 
-## Option 2
-Clone this repo, remove the .git folder, go from there
+•	config.yaml is used to set paths
 
-# Customizing the template
+•	R/ holds R function definitions and misc utility scripts
 
-## config.yaml
+•	Rmd/ holds R markdown documents for the individual steps of the project
 
-Use this file to save project-specific parameters, e.g. set paths. This way all parameters may be stored in one place and can be loaded by scripts easily.
+•	bash/ holds shell scripts to build and run the docker image, and to parse the config file
 
-## Docker
+•	metadata/ holds custom geneset definitions
 
-This is assuming that you are using a project-specific docker image (you don't have to). If you want to use the `run_docker*` scripts, you will have to edit the `project_docker` line in `config.yaml` to point to the image for the project.
 
-- Edit `project.Dockerfile` 
-- Build image: `docker build -t cancerbits/dockr:project_name - < project.Dockerfile` (replace `project_name`)
+# Reproducing the results
+Paths in the config.yaml file starting with "/path/to/" will have to be set.
 
-`run_docker_rstudio.sh` expects two parameters: the port number and a password. E.g. `./run_docker_rstudio.sh 8881 abcd` will create a docker container where RStudio Server is mapped to port 8881 and the login password is abcd.
+# Links
+## Paper: 
+## Data files: 
+Raw data files are available at The European Genome-phenome Archive (EGA): https://ega-archive.org/datasets/EGAD50000000371
+Counts are available in the GEO platform: 
