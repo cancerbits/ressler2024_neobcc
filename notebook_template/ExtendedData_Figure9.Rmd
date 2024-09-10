@@ -1,0 +1,849 @@
+---
+title: "Extended Data Figure 9"
+author: '`r Sys.info()["user"]`'
+date: '`r format(Sys.time(), "%B %d, %Y %H:%M:%S %Z")`'
+output:
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: kable
+    keep_md: true
+params:
+  sample_name: ~
+  sample_path: ~
+  out_rds_path: ~
+  path_to_data: "20241005_Ressler2024_NeoBCC.Rds"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo=TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+# Introduction
+
+
+## Load libraries
+
+```{r lib}
+library(Seurat)
+library(canceRbits)
+library(dplyr)
+library(patchwork)
+library(DT)
+library(SCpubr)
+library(tibble)
+library(dittoSeq)
+library(scRepertoire)
+library(reshape2)
+library(viridis)
+library(tidyr)
+
+library(grDevices)
+library(ggpubr)
+library(ggplot2)
+library(ggnewscale)
+
+library(RColorBrewer)
+library(scales)
+
+library(enrichplot)
+library(clusterProfiler)
+library("org.Hs.eg.db")
+library(DOSE)
+library(msigdbr)
+library(stringr)
+```
+
+## Load single cell RNA-Seq data
+
+```{r}
+# Load seurat object containing single cell pre-processed and annotated data, in the metadata folder
+
+srat <- readRDS(params$path_to_data)
+meta <- srat@meta.data
+meta$WHO <- "SD"
+meta$WHO[meta$patient %in% c("NeoBCC007_post", "NeoBCC008_post", "NeoBCC012_post", "NeoBCC017_post")] <- "CR"
+meta$WHO[meta$patient %in% c("NeoBCC004_post", "NeoBCC006_post", "NeoBCC010_post", "NeoBCC011_post")] <- "PR"
+srat <- AddMetaData(srat, meta$WHO, col.name = "WHO")
+srat$WHO <- factor(srat$WHO, levels = c("CR", "PR", "SD"))
+
+```
+
+## colors
+
+```{r}
+colors_B <- c(
+  "34" = "#ae017e",
+  "7"  =  "#377eb8",
+  "21" =  "#f781bf",  
+  "38" = "#fed976",
+  "15" = "#a6cee3" ,
+  "22" = "#e31a1c"   ,
+   "3" = "#9e9ac8",
+ "4"   = "#fdb462" ,
+ "24"  = "#b3de69"
+)
+
+
+colors_clonotype = c("Small (1e-04 < X <= 0.001)"   = "#8c6bb1",
+           "Medium (0.001 < X <= 0.01)"   = "#41b6c4",
+           "Large (0.01 < X <= 0.1)"      = "#fec44f",
+           "Hyperexpanded (0.1 < X <= 1)" = "#ce1256"
+)
+```
+
+
+
+
+```{r , echo=TRUE, fig.height=4, fig.width=4, out.width='100%'}
+
+s   <- subset(srat, subset = anno_l1 %in% c("B cells","Plasma cells"))
+
+s@meta.data$seurat_clusters <- factor(s@meta.data$seurat_clusters, levels=c("34","7", "21",  "38",
+                                                                             "15", "22","3", "4", "24"))
+    
+
+```
+
+
+
+# Extended Data Figure 9a
+
+```{r EDF9a, fig.height=6, fig.width=30, message=FALSE, warning=FALSE, out.width='100%'}
+
+df <- s@meta.data %>%
+    mutate_if(sapply(s@meta.data, is.character), as.factor)  %>% 
+    group_by( Pathological.Response, patient, seurat_clusters,    .drop = FALSE)%>% 
+  summarise(Nb = n()) %>%
+  mutate(C = sum(Nb)) %>%
+  mutate(percent = Nb/C*100) %>%
+  filter(percent != "NaN") %>%
+  arrange(Pathological.Response, percent)
+
+
+
+
+tmp <- df[df$seurat_clusters %in% c("34"),]
+
+
+p1 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#dd3497", "#ae017e"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "Percentage (%)") + 
+  ylim(c(0,90)) +
+   ggtitle("C34") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+
+tmp <- df[df$seurat_clusters %in% c("7"),]
+
+
+p2 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#1d91c0", "#253494"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C7") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("21"),]
+
+
+p3 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" ,  
+         
+         palette= c("white", "#fde0dd", "#fa9fb5"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C21") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("38"),]
+
+
+p4 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#ffffcc", "yellow"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") +
+  ylim(c(0,90)) +
+   ggtitle("C38") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("15"),]
+
+
+p5 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#deebf7", "#9ecae1"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C15") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("22"),]
+
+
+p6 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#fc9272", "#ef3b2c"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C22") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("3"),]
+
+
+p7 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#decbe4", "#c2a5cf"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C3") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("4"),]
+
+
+p8 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#fee0b6", "#fec44f"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C4") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("24"),]
+
+
+p9 <- ggpaired(tmp, 
+         x = "Pathological.Response", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "Pathological.Response" , 
+         palette= c("white", "#b8e186", "#7fbc41"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C24") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.format", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+p <- p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + plot_layout(nrow = 1, guides = "collect")
+p
+
+DT::datatable(rbind(p1$data, p2$data, p3$data, p4$data, p5$data, p6$data, p7$data, p8$data, p9$data), 
+              caption = ("Extended Data Figure 9A"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+```{r EDF9a.2, fig.height=6, fig.width=30, message=FALSE, warning=FALSE, out.width='100%'}
+
+s$WHO <- factor(s$WHO, levels = c("CR","PR","SD"))
+df <- s@meta.data %>%
+    mutate_if(sapply(s@meta.data, is.character), as.factor)  %>% 
+    group_by( WHO, patient, seurat_clusters,    .drop = FALSE)%>% 
+  summarise(Nb = n()) %>%
+  mutate(C = sum(Nb)) %>%
+  mutate(percent = Nb/C*100) %>%
+  filter(percent != "NaN") %>%
+  arrange(WHO, percent)
+
+
+
+
+tmp <- df[df$seurat_clusters %in% c("34"),]
+
+
+p1 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#dd3497", "#ae017e"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "Percentage (%)") + 
+  ylim(c(0,90)) +
+   ggtitle("C34") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+
+tmp <- df[df$seurat_clusters %in% c("7"),]
+
+
+p2 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#1d91c0", "#253494"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C7") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("21"),]
+
+
+p3 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" ,  
+         
+         palette= c("white", "#fde0dd", "#fa9fb5"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C21") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("38"),]
+
+
+p4 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#ffffcc", "yellow"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") +
+  ylim(c(0,90)) +
+   ggtitle("C38") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("15"),]
+
+
+p5 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#deebf7", "#9ecae1"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+   ggtitle("C15") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("22"),]
+
+
+p6 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#fc9272", "#ef3b2c"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C22") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("3"),]
+
+
+p7 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#decbe4", "#c2a5cf"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C3") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+tmp <- df[df$seurat_clusters %in% c("4"),]
+
+
+p8 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#fee0b6", "#fec44f"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C4") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+
+tmp <- df[df$seurat_clusters %in% c("24"),]
+
+
+p9 <- ggpaired(tmp, 
+         x = "WHO", 
+         y = "percent", 
+         id="patient", 
+         color = "black", 
+         fill = "WHO" , 
+         palette= c("white", "#b8e186", "#7fbc41"), 
+         point.size = 2, 
+         xlab = "", 
+         ylab = "") + 
+  ylim(c(0,90)) +
+  ggtitle("C24") + NoLegend() +
+  stat_compare_means( method = "wilcox.test", 
+                      paired = FALSE, 
+                      label.y = 80, 
+                      hide.ns = FALSE, 
+                      label = "p.signif", 
+                      label.x.npc = "center", 
+                      bracket.size = 1, 
+                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      size = 8)  +
+  theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
+
+p <- p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + plot_layout(nrow = 1, guides = "collect")
+p
+
+DT::datatable(rbind(p1$data, p2$data, p3$data, p4$data, p5$data, p6$data, p7$data, p8$data, p9$data), 
+              caption = ("Extended Data Figure 9A"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+```
+
+# Extended Data Figure 9b
+
+```{r  EDF9b, echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='100%'}
+
+p1 <- Seurat::VlnPlot(s, 
+                     features = "HLA-DRA", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p1 <- p1 + geom_boxplot(width=0.3, fill="white")
+
+f1 <- SCpubr::do_FeaturePlot(s, 
+                     features = "HLA-DRA", legend.position = "right", legend.length = 4)
+
+
+p2 <- Seurat::VlnPlot(s, 
+                     features = "GZMK", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p2 <- p2 + geom_boxplot(width=0.3, fill="white")
+
+f2 <- SCpubr::do_FeaturePlot(s, 
+                     features = "GZMK", legend.position = "right", legend.length = 4)
+
+
+
+p3 <- Seurat::VlnPlot(s, 
+                     features = "CD27", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p3 <- p3 + geom_boxplot(width=0.3, fill="white")
+
+f3 <- SCpubr::do_FeaturePlot(s, 
+                     features = "CD27", legend.position = "right", legend.length = 4)
+
+
+p4 <- Seurat::VlnPlot(s, 
+                     features = "XBP1", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p4 <- p4 + geom_boxplot(width=0.3, fill="white")
+
+f4 <- SCpubr::do_FeaturePlot(s, 
+                     features = "XBP1", legend.position = "right", legend.length = 4)
+
+
+
+c1 <- f1+p1  + plot_layout(ncol = 2,  widths   = c(1,2)) 
+c2 <- f2+p2  + plot_layout(ncol = 2,  widths   = c(1,2))
+c3 <- f3+p3  + plot_layout(ncol = 2,  widths   = c(1,2))
+c4 <- f4+p4  + plot_layout(ncol = 2,  widths   = c(1,2))
+
+c1
+DT::datatable(f1$data, 
+              caption = ("EDFigure 9Ba_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+c2
+DT::datatable(f2$data, 
+              caption = ("EDFigure 9Bb_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+c3
+DT::datatable(f3$data, 
+              caption = ("EDFigure 9Bc_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+c4
+DT::datatable(f4$data, 
+              caption = ("EDFigure 9Bd_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+DT::datatable(p1$data, 
+              caption = ("EDFigure 9Ba_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+DT::datatable(p2$data, 
+              caption = ("EDFigure 9Bb_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+DT::datatable(p3$data, 
+              caption = ("EDFigure 9Bc_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+DT::datatable(p4$data, 
+              caption = ("EDFigure 9Bd_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+```
+
+
+# Extended Data Figure 9C
+
+
+```{r EDF5c,  echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='100%'}
+
+p1 <- Seurat::VlnPlot(s, 
+                     features = "PRF1", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p1 <- p1 + geom_boxplot(width=0.3, fill="white")
+
+f1 <- SCpubr::do_FeaturePlot(s, 
+                     features = "PRF1", legend.position = "right", legend.length = 4)
+
+
+p2 <- Seurat::VlnPlot(s, 
+                     features = "IL10", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p2 <- p2 + geom_boxplot(width=0.3, fill="white")
+
+f2 <- SCpubr::do_FeaturePlot(s, 
+                     features = "IL10", legend.position = "right", legend.length = 4)
+
+
+
+p3 <- Seurat::VlnPlot(s, 
+                     features = "TGFB1", 
+                     group.by = "seurat_clusters", 
+                     pt.size = 0,  
+                     cols = colors_B) & NoLegend() 
+p3 <- p3 + geom_boxplot(width=0.3, fill="white")
+
+f3 <- SCpubr::do_FeaturePlot(s, 
+                     features = "TGFB1", legend.position = "right", legend.length = 4)
+
+
+
+
+
+c1 <- f1+p1  + plot_layout(ncol = 1,  heights =  c(1,1)) 
+c2 <- f2+p2  + plot_layout(ncol = 1,  heights = c(1,1))
+c3 <- f3+p3  + plot_layout(ncol = 1,  heights = c(1,1))
+
+c1
+DT::datatable(f1$data, 
+              caption = ("ExtendedData_Figure9Ca_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+DT::datatable(p1$data, 
+              caption = ("ExtendedData_Figure9Ca_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+c2
+DT::datatable(f2$data, 
+              caption = ("ExtendedData_Figure9Cb_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+DT::datatable(p2$data, 
+              caption = ("ExtendedData_Figure9Cb_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+c3
+DT::datatable(f3$data, 
+              caption = ("ExtendedData_Figure9Cc_FeaturePlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+
+DT::datatable(p3$data, 
+              caption = ("ExtendedData_Figure9Cc_VlnPlot"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+
+
+
+
+
