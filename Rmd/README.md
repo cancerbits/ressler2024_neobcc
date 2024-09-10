@@ -35,6 +35,8 @@ This result to the construction of the fully annotated Seurat object which is th
 
 # Figure 3
 
+Figure 3 contains an overview of the immune microenvironment at the single cell level of TVEC treated BCC samples. 
+
 `ressler2024_Figure3` contains the `Rmd` notebook that is used to generate Figure 3a and 3b plots, and the reports containing plots and codes in `.md` and `.html` format.
 
 You can regenerate the reports using the following lines: 
@@ -45,6 +47,22 @@ rmarkdown::render(input = "Figure3.Rmd",
                     output_format = "html_document",
                     output_file = "Figure3.html",
                     output_dir = "ressler2024_Figure3")
+```
+
+# Figure 5
+
+Figure 5 allow the analysis of B and plasma cells. 
+
+`ressler2024_Figure5` contains the `Rmd` notebook that is used to generate Figures 5 and the reports containing plots and codes in `.md` and `.html` format.
+
+You can regenerate the reports using the following lines: 
+```{r}
+dir.create("ressler2024_Figure5")
+
+rmarkdown::render(input = "Figure5.Rmd", 
+                    output_format = "html_document",
+                    output_file = "Figure5.html",
+                    output_dir = "ressler2024_Figure5")
 ```
 
 
