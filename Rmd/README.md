@@ -76,7 +76,7 @@ rmarkdown::render(input = "Figure5.Rmd",
 ```
 
 # Extended Data Figure 9 
-`ressler2024_ExtendedData_Figure9` contains the `Rmd` notebook that is used to generate ED Figures 9 and the [reports]() containing plots and codes in `.md` and `.html` format.
+`ressler2024_ExtendedData_Figure9` contains the `Rmd` notebook that is used to generate ED Figures 9 and the [reports](https://github.com/cancerbits/ressler2024_neobcc/blob/main/Rmd/ressler2024_ExtendedData_Figure9/ExtendedData_Figure9.html) containing plots and codes in `.md` and `.html` format.
 
 You can regenerate the reports using the following lines: 
 ```{r}
