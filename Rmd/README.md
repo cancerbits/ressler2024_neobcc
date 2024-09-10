@@ -32,3 +32,6 @@ The pre-processing includes:
 - Reference mapping: single cell data are mapped to the Tabula Sapiens Skin reference and Azimuth PBMC reference using azimuth reference mapping.
 
 This result to the construction of the fully annotated Seurat object which is the input of every other Rmd file.
+
+# Figure 3
+
