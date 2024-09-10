@@ -4,7 +4,7 @@
 The summarized clinical data of the NeoBCC patients involved in the study.
 
 ## Ressler2024_metadata.csv
-Table containing metadata for each cell of the single cell dataset.
+Table containing metadata for each cell of the single cell dataset. This table can be dowanloaded on [GEO]()
 
 - patient: patient ID
 - anno_l1: first level annotation
