@@ -1,0 +1,472 @@
+---
+title: "Figure 5"
+author: '`r Sys.info()["user"]`'
+date: '`r format(Sys.time(), "%B %d, %Y %H:%M:%S %Z")`'
+output:
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: kable
+    keep_md: true
+params:
+  sample_name: ~
+  sample_path: ~
+  out_rds_path: ~
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo=TRUE,
+	message = FALSE,
+	warning = FALSE,
+	dev = c("png", "jpeg", "pdf")
+)
+```
+
+
+# Introduction
+
+
+## Load libraries
+
+```{r lib}
+library(Seurat)
+library(canceRbits)
+library(dplyr)
+library(patchwork)
+library(DT)
+library(SCpubr)
+library(tibble)
+library(dittoSeq)
+library(scRepertoire)
+library(reshape2)
+library(viridis)
+library(tidyr)
+
+library(grDevices)
+library(ggpubr)
+library(ggplot2)
+library(ggnewscale)
+
+library(RColorBrewer)
+library(scales)
+
+library(enrichplot)
+library(clusterProfiler)
+library("org.Hs.eg.db")
+library(DOSE)
+library(msigdbr)
+library(stringr)
+```
+
+## path to data
+
+```{r}
+# path to data, to be adapted - serve here to get raw data
+path_to_data = file.path("mnt_data","BCC_2023-06/biomedical-sequencing.at/projects/BSA_0460_MF_BCC_1ab413522d3e4d2d959b1b8f2681cf06/COUNT/")
+
+
+# Load seurat object containing single cell pre-processed and annotated data, in the metadata folder
+
+srat <- readRDS( "20241005_Ressler2024_NeoBCC.Rds")
+meta <- srat@meta.data
+meta$WHO <- "SD"
+meta$WHO[meta$patient %in% c("NeoBCC007_post", "NeoBCC008_post", "NeoBCC012_post", "NeoBCC017_post")] <- "CR"
+meta$WHO[meta$patient %in% c("NeoBCC004_post", "NeoBCC006_post", "NeoBCC010_post", "NeoBCC011_post")] <- "PR"
+srat <- AddMetaData(srat, meta$WHO, col.name = "WHO")
+srat$WHO <- factor(srat$WHO, levels = c("CR", "PR", "SD"))
+
+```
+
+## colors
+
+```{r}
+colors_B <- c(
+  "34" = "#ae017e",
+  "7"  =  "#377eb8",
+  "21" =  "#f781bf",  
+  "38" = "#fed976",
+  "15" = "#a6cee3" ,
+  "22" = "#e31a1c"   ,
+   "3" = "#9e9ac8",
+ "4"   = "#fdb462" ,
+ "24"  = "#b3de69"
+)
+
+
+colors_clonotype = c("Small (1e-04 < X <= 0.001)"   = "#8c6bb1",
+           "Medium (0.001 < X <= 0.01)"   = "#41b6c4",
+           "Large (0.01 < X <= 0.1)"      = "#fec44f",
+           "Hyperexpanded (0.1 < X <= 1)" = "#ce1256"
+)
+
+colors_Ig = c("IGHA1" = "#addd8e",
+           "IGHA2" = "#238443",
+           "IGHM"  = "#dd3497" , 
+           "IGHD"  =  "#41b6c4",
+           "IGHG1" = "#fec44f",
+           "IGHG2" = "#fe9929",
+           "IGHG3" = "#ec7014",
+           "IGHG4" = "#fee391"
+)
+```
+
+
+
+# Figure 5a
+
+```{r Figure5a, echo=TRUE, fig.height=4, fig.width=4, out.width='100%'}
+
+s   <- subset(srat, subset = anno_l1 %in% c("B cells","Plasma cells"))
+
+s@meta.data$seurat_clusters <- factor(s@meta.data$seurat_clusters, levels=c("34","7", "21",  "38",
+                                                                             "15", "22","3", "4", "24"))
+    
+p <- SCpubr::do_DimPlot(sample = s, 
+                   reduction = "umap", 
+                   label = TRUE, 
+                   repel = TRUE, 
+                   label.color = "black", 
+                   legend.position = "none", 
+                   group.by = "seurat_clusters", 
+                   font.size = 25,
+                   pt.size = 0.5, 
+                   colors.use = colors_B) + theme_minimal()  + NoLegend() + theme(text = element_text(size=20))
+
+p
+
+DT::datatable(p$data, 
+              caption = ("Figure 5a"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+```
+
+
+
+# Figure 5b
+
+```{r Figure5b, echo=TRUE, fig.height=10, fig.width=16, message=FALSE, warning=FALSE, out.width='100%'}
+Idents(s) <- s$seurat_clusters
+
+genes <- list( "B" = c("MS4A1", "CD19"),
+               "Ag presentation" = c("HLA-DRA", "HLA-DRB1", "HLA-DPB1", "CD40"),
+               "Cytotox" = c("GZMK", "PRF1"),
+               "Mem" = "CD27",
+               "Plasma" = c("IGKC", "IGHG1", "CD38", "SDC1", "JCHAIN"),
+               "Cell state" = c("G2M.Score", "S.Score","percent.mito")  
+               )
+
+p <- SCpubr::do_DotPlot(sample = s, 
+                        features = genes, 
+                        font.size = 18, 
+                        legend.length = 12,  
+                        legend.type = "colorbar", 
+                        dot.scale = 8,  
+                        colors.use  = c("#7fbc41","#b8e186", "#f7f7f7","#fde0ef", "#c51b7d"), 
+                        use_viridis = FALSE
+) 
+
+p
+DT::datatable(p$data, 
+              caption = ("Figure 5b"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+```
+
+
+
+# Figure 5c
+
+
+```{r Figure5c, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='100%'}
+
+q1 <- SCpubr::do_BarPlot( s,
+                         group.by = "seurat_clusters",
+                         split.by = "WHO",
+                         position = "fill",
+                         flip = TRUE,
+                         order=FALSE,
+                         legend.position = "none",
+                         font.size = 32 ,
+                         colors.use = colors_B,
+                         xlab = "",
+                         ylab = ""
+                          
+                   ) + xlab("Response") + ylab("% of B and plasma cells")
+
+
+
+q1
+DT::datatable(q1$data, 
+              caption = ("Figure 5c"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+
+```{r Figure5c.1, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='100%'}
+
+q1 <- SCpubr::do_BarPlot( s,
+                         group.by = "seurat_clusters",
+                         split.by = "Pathological.Response",
+                         position = "fill",
+                         flip = TRUE,
+                         order=FALSE,
+                         legend.position = "none",
+                         font.size = 32 ,
+                         colors.use = colors_B,
+                         xlab = "",
+                         ylab = ""
+                          
+                   ) + xlab("Response") + ylab("% of B and plasma cells")
+
+
+
+q1
+DT::datatable(q1$data, 
+              caption = ("Figure 5c"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+
+
+
+
+
+
+# Open and pre-process clonotyoe data 
+
+```{r clono, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# Run from raw BCR data stored in path_to_data or load the combined BCR data in the following chunk
+# loading the data
+vdj <- list()
+dirs <- list.dirs(path = path_to_data, full.names = TRUE, recursive = FALSE)
+
+samples <- c("NeoBCC007_post",
+             "NeoBCC008_post",
+             "NeoBCC012_post",
+             "NeoBCC017_post",
+             "NeoBCC004_post",
+             "NeoBCC005_post",
+             "NeoBCC006_post",
+             "NeoBCC010_post",
+             "NeoBCC011_post",
+             "NeoBCC014_post",
+             "NeoBCC015_post",
+             "NeoBCC018_post")
+
+
+
+
+for (i in (samples)){
+  dir_TCR <- paste0(path_to_data, i, "_BCR_VDJ")
+  vdj[[i]] <- read.csv(paste0(dir_TCR, "/filtered_contig_annotations.csv"))
+}
+
+head(vdj[[1]])
+
+# combine the contigs
+combined <- combineBCR(vdj, 
+                samples = gsub("_pre|_post", "", samples), 
+                removeNA = TRUE, removeMulti = TRUE)
+
+
+merge_combined <- bind_rows(combined, .id = "sample")
+
+```
+
+
+```{r echo=TRUE, fig.height=5, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+combined <- readRDS("Ressler2024/metadata/100_CombinedBCR.Rds")
+
+srat <- RenameCells(srat,new.names = paste0(srat$patient, "_",gsub("(_1|_2|_3|_4|_5|_6|_7|_8|_9)*", "",colnames(srat))))
+srat <- RenameCells(srat,new.names = gsub("_post", "",colnames(srat)))
+
+srat$sample <- gsub("_post", "",srat$patient)
+
+
+seurat <- combineExpression(combined, srat, 
+                  cloneCall = "strict", 
+                  group.by = "sample", chain = "both",
+                  proportion = TRUE,
+                  filterNA = TRUE)
+
+
+
+s   <- subset(seurat, subset = anno_l1 %in%  c("B cells","Plasma cells") )
+
+#s@meta.data$anno_l1 <- droplevels(s@meta.data$anno_l1)
+#s@meta.data$seurat_clusters <- droplevels(s@meta.data$seurat_clusters)
+
+s@meta.data$cloneType <- factor(s@meta.data$cloneType, levels = unique(s$cloneType))
+
+
+```
+
+
+# Figure 5d
+
+
+done on the highly confident B and plasma cells with exactly 2 IGH and IGL chains
+
+```{r Fig5d, fig.height=10, fig.width=30, message=FALSE, warning=FALSE,  out.width='100%'}
+
+df <- s@meta.data
+
+df <- df %>% 
+    separate( CTgene, c("IGH", "IGL"), sep = "_") %>%
+  separate( IGH, c("V", "D", "J", "C"), "\\.")
+   
+ 
+s <- AddMetaData(s, df$C, col.name = "Ig_level")
+sss <- subset(s, subset = Ig_level != "NA")
+dim(sss)
+
+sss@meta.data$cloneType <- factor(sss@meta.data$cloneType, levels = c("Hyperexpanded (0.1 < X <= 1)", "Large (0.01 < X <= 0.1)", "Medium (0.001 < X <= 0.01)", "Small (1e-04 < X <= 0.001)"))
+
+# define cell group membership
+Idents(sss) <- sss$cloneType
+
+
+
+
+sss@meta.data$Ig_level <- factor(sss@meta.data$Ig_level, levels = c("IGHA1",
+         "IGHA2",
+         "IGHM", 
+         "IGHD",
+         "IGHG1",
+         "IGHG2",
+         "IGHG3",
+         "IGHG4"))
+
+
+ 
+
+q1 <- SCpubr::do_BarPlot( sss,
+                         group.by = "Ig_level",
+                         split.by = "anno_l1",
+                         position = "fill",
+                         flip = TRUE,
+                         order=FALSE,
+                         legend.position = "right",
+                         font.size = 30     , 
+                         colors.use = colors_Ig) +
+  xlab("") +
+  ylab("Frequency of Ig isotypes")
+
+
+
+q1
+DT::datatable(q1$data, 
+              caption = ("Figure 5d"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+
+
+q1 <- SCpubr::do_BarPlot( sss,
+                         group.by = "Ig_level",
+                         split.by = "cloneType",
+                         position = "fill",
+                         flip = TRUE,
+                         order=FALSE,
+                         legend.position = "right",
+                         font.size = 30     , 
+                         colors.use = colors_Ig               ) +
+  xlab("") +
+  ylab("Frequency of Ig isotypes")
+
+
+
+q1
+DT::datatable(q1$data, 
+              caption = ("Figure 5d"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+
+```
+
+
+
+# Figure 5f
+
+
+
+```{r Figure5f, fig.height=7, fig.width=25, echo=TRUE, message=FALSE, warning=FALSE, out.width='100%'}
+
+Idents(s) <- s$seurat_clusters
+s@meta.data$seurat_clusters <- factor(s@meta.data$seurat_clusters, levels=c("34","7", "21",  "38",
+                                                                             "15", "22","3", "4", "24"))
+
+s@meta.data$cloneType <- factor(s@meta.data$cloneType, levels = c("Hyperexpanded (0.1 < X <= 1)", "Large (0.01 < X <= 0.1)", "Medium (0.001 < X <= 0.01)", "Small (1e-04 < X <= 0.001)"))
+
+# define cell group membership
+Idents(s) <- s$cloneType
+
+de_markers <- DElegate::FindAllMarkers2(s, replicate_column = "patient", method = "edger", min_fc = 0, min_rate = 0.1)
+
+signature_h <- de_markers$feature[de_markers$group1=="Hyperexpanded (0.1 < X <= 1)" ]
+background <- rownames(s)
+library(msigdbr)
+library(clusterProfiler)
+# enricher for cnet plot
+GO_H_gene_sets = msigdbr(species = "human", category = "H")
+msigdbr_t2g = GO_H_gene_sets %>% dplyr::distinct(gs_name, gene_symbol) %>% as.data.frame()
+
+ego_h <- enricher(gene = signature_h, universe = background, TERM2GENE = msigdbr_t2g)
+
+ 
+b <- barplot(ego_h, title = "Hallmarks´enrichment of hyperexpanded clones")
+
+
+tmp <- b$data
+
+tmp$ID <- str_trunc(tmp$ID, 100, "right")
+tmp$ID <- factor(tmp$ID, levels = tmp$ID[order(tmp$Count)])
+
+p <- ggplot(tmp, aes(Count, ID)) +
+    geom_bar(stat = "identity", color="black", fill =  colors_clonotype["Hyperexpanded (0.1 < X <= 1)"]) +
+   theme_classic()+ 
+    geom_text(
+        aes(label = (paste( "padj=", format(p.adjust,scientific = TRUE, digits = 2)))),
+        color = "black",
+        size = 6,
+        hjust=1,
+        position = position_dodge(0.5)  ) +
+     theme(text = element_text(size=18)) +
+  ggtitle("Hyperexpanded clones")
+
+
+p
+
+DT::datatable(p$data, 
+              caption = ("Figure 3I"),
+              extensions = 'Buttons', 
+              options = list( dom = 'Bfrtip',
+              buttons = c( 'csv', 'excel')))
+
+```
+
+
+
+
+
+
+
+
