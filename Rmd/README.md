@@ -47,7 +47,7 @@ You can download the pre-processed `Seurat`object (for single cell RNA-Seq data)
 
 Figure 3 contains an overview of the immune microenvironment at the single cell level of TVEC treated BCC samples. 
 
-`ressler2024_Figure3` contains the `Rmd` notebook that is used to generate Figure 3a and 3b plots, and the reports containing plots and codes in `.md` and `.html` format.
+`ressler2024_Figure3` contains the `Rmd` notebook that is used to generate Figure 3a and 3b plots, and the [reports](https://github.com/cancerbits/ressler2024_neobcc/blob/main/Rmd/ressler2024_Figure3/Figure3.html) containing plots and codes in `.md` and `.html` format.
 
 You can regenerate the reports using the following lines: 
 ```{r}
@@ -63,7 +63,7 @@ rmarkdown::render(input = "Figure3.Rmd",
 
 Figure 5 allow the analysis of B and plasma cells. 
 
-`ressler2024_Figure5` contains the `Rmd` notebook that is used to generate Figures 5 and the reports containing plots and codes in `.md` and `.html` format.
+`ressler2024_Figure5` contains the `Rmd` notebook that is used to generate Figures 5 and the [reports](https://github.com/cancerbits/ressler2024_neobcc/blob/main/Rmd/ressler2024_Figure5/Figure5.html) containing plots and codes in `.md` and `.html` format.
 
 You can regenerate the reports using the following lines: 
 ```{r}
@@ -75,4 +75,30 @@ rmarkdown::render(input = "Figure5.Rmd",
                     output_dir = "ressler2024_Figure5")
 ```
 
+# Extended Data Figure 9 
+`ressler2024_ExtendedData_Figure9` contains the `Rmd` notebook that is used to generate ED Figures 9 and the [reports]() containing plots and codes in `.md` and `.html` format.
+
+You can regenerate the reports using the following lines: 
+```{r}
+dir.create("ressler2024_ExtendedData_Figure9")
+
+rmarkdown::render(input = "ExtendedData_Figure9.Rmd", 
+                  output_format = "html_document",
+                  output_file = "ExtendedData_Figure9.html",
+                  output_dir = "ressler2024_ExtendedData_Figure9")
+```
+
+
+# Extended Data Figure 10 
+`ressler2024_ExtendedData_Figure10` contains the `Rmd` notebook that is used to generate ED Figures 10 and the [reports]() containing plots and codes in `.md` and `.html` format.
+
+You can regenerate the reports using the following lines: 
+```{r}
+dir.create("ressler2024_ExtendedData_Figure10")
+
+rmarkdown::render(input = "ExtendedData_Figure10.Rmd", 
+                  output_format = "html_document",
+                  output_file = "ExtendedData_Figure10.html",
+                  output_dir = "ressler2024_ExtendedData_Figure10")
+```
 
