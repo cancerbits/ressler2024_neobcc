@@ -25,8 +25,6 @@ Paths in the config.yaml file starting with "/path/to/" will have to be set.
 ## Paper: 
 ## Data files: 
 
-Raw data files are available at The European Genome-phenome Archive (EGA): 
+Raw data files are available at The European Genome-phenome Archive [EGA](https://ega-archive.org/datasets/EGAD50000000371)
 
-https://ega-archive.org/datasets/EGAD50000000371
-
-Counts are available in the GEO platform: 
+Counts are available in the [GEO platform]()
