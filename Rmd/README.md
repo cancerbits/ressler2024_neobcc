@@ -35,3 +35,16 @@ This result to the construction of the fully annotated Seurat object which is th
 
 # Figure 3
 
+`ressler2024_Figure3` contains the `Rmd` notebook that is used to generate Figure 3a and 3b plots, and the reports containing plots and codes in `.md` and `.html` format.
+
+You can regenerate the reports using the following lines: 
+```{r}
+dir.create("ressler2024_Figure3")
+
+rmarkdown::render(input = "Figure3.Rmd", 
+                    output_format = "html_document",
+                    output_file = "Figure3.html",
+                    output_dir = "ressler2024_Figure3")
+```
+
+
