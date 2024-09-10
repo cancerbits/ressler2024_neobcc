@@ -21,7 +21,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 Paths in the config.yaml file starting with "/path/to/" will have to be set, as well as paths in `run_ressler2024.R`.
 
-The figures of the [manuscript]() can be reproduced runing the `run_ressler2024.R` script. 
+The figures of the [manuscript]() can be reproduced runing the [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
 
 To achieve high reproducibility, we recommand to start with the pre-processed `Seurat` object available on [GEO]().  
 
