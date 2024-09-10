@@ -1,8 +1,14 @@
 # Before you start:
 
-## Build the references for transfer of annotations
+We provide here all the code to re-run the analysis and plots presented in Ressler et al. 2024. 
+Before starting, you can chose to either request the raw data on [EGA](https://ega-archive.org/datasets/EGAD50000000371) and pre-process them following the instruction bellow, or download the pre-processed `R object` on [GEO]() and run the notebooks for each of the figure. 
 
-### Tabula Sapiens Skin reference:
+## Start from raw data
+The raw data can be downloaded here [EGA](https://ega-archive.org/datasets/EGAD50000000371) upon request.
+
+### Build the references for transfer of annotations
+
+#### Tabula Sapiens Skin reference:
 
 Run in Rmd/INIT_TS_Skin_reference.Rmd
 
@@ -10,7 +16,7 @@ Website: https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-90
 
 Publication: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9812260/
 
-### human PBMC Azimuth reference:
+#### human PBMC Azimuth reference:
 
 Run in bash/get_ref_human_pbmc.sh
 
@@ -18,7 +24,7 @@ Website: https://azimuth.hubmapconsortium.org/references/#Human%20-%20PBMC
 
 Publication: https://www.biorxiv.org/content/10.1101/2020.10.12.335331v1
 
-# INIT.Rmd
+### INIT.Rmd
 
 The INIT file allow you to pre-process and annotated the raw single cell data, that you can download here:
 The pre-processing includes:
@@ -32,6 +38,10 @@ The pre-processing includes:
 - Reference mapping: single cell data are mapped to the Tabula Sapiens Skin reference and Azimuth PBMC reference using azimuth reference mapping.
 
 This result to the construction of the fully annotated Seurat object which is the input of every other Rmd file.
+
+## Start from the pre-processed `R objects`
+
+You can download the pre-processed `Seurat`object (for single cell RNA-Seq data) and BCR- TCR- Seq combined tables on [GEO]()
 
 # Figure 3
 
