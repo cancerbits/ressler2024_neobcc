@@ -32,7 +32,7 @@ Run in `Rmd/INIT_TS_Skin_reference.Rmd`
 
 #### human PBMC Azimuth reference:
 
-Run in `bash/get_ref_human_pbmc.sh`
+Run in [`bash/get_ref_human_pbmc.sh`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/bash/get_ref_human_pbmc.sh)
 
 [Website](https://azimuth.hubmapconsortium.org/references/#Human%20-%20PBMC)
 
