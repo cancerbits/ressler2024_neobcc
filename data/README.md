@@ -4,13 +4,13 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 # Repository structure
 
-The `data`repository holds the `Seurat` objects containing pre-processed 
+The `data`repository should holds the `Seurat` objects containing pre-processed data for:
 	
 	- single cells
 	- TCR-Seq
-	- BCR-Seq data.
+	- BCR-Seq.
 
-Please note, that these files need o be requested and/or downloaded before running the analysis, see instructions bellow.  
+Please note, that these files need to be requested and/or downloaded before running the analysis, see instructions bellow.  
 
 # Single cell RNA-Seq data
 
