@@ -12,7 +12,7 @@ local_path_to_single_cell_data <- file.path("..","data","20241005_Ressler2024_Ne
 # Code is however available. 
 # You can change the non-run default changing the `accessibility` parameter to `unlock`.
 ##########################################################################################
-accessibility <- "unlock"
+accessibility <- "lock"
 ##########################################################################################
 local_path_to_BCR_data <- file.path("..","data","100_CombinedBCR.Rds")
 local_path_to_TCR_data <- file.path("..","data","100_CombinedTCR.Rds")
