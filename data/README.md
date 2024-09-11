@@ -24,7 +24,7 @@ Please note that before being able to run `run_ressler2024.R`, you will have to 
 
 #### Tabula Sapiens Skin reference:
 
-Run in `Rmd/INIT_TS_Skin_reference.Rmd`
+Run in [`Rmd/INIT_TS_Skin_reference.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_TS_Skin_reference.Rmd)
 
 [Website](https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
 
@@ -38,7 +38,7 @@ Run in [`bash/get_ref_human_pbmc.sh`](https://github.com/cancerbits/ressler2024_
 
 [Publication](https://www.biorxiv.org/content/10.1101/2020.10.12.335331v1)
 
-### `INIT.Rmd`
+### [`INIT.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_Ressler2024.Rmd)
 
 The INIT file allow you to pre-process and annotated the raw single cell data.
 The pre-processing includes:
