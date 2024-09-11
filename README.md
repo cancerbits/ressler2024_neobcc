@@ -21,7 +21,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 •	[notebook/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook) holds `.html` and `.md` reports for the individual steps of the project, corresponding to each of the figure of the [manuscript](), generated with the corresponding `notebook_template`
 
 ## Data and metadata
-•	[metadata/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/metadata) holds custom geneset definitions required for the analysis. We recommand to clone the github repository to avoid any path confusion. Alternatively, path can be changed at the beginning of [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
+•	[metadata/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/metadata) holds custom geneset definitions required for the analysis. We recommand to clone the github repository to avoid any path confusion. Alternatively, path can be changed at the beginning of [`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
 
 •	[data](https://github.com/cancerbits/ressler2024_neobcc/tree/main/data) should hold the `Seurat` objects containing pre-processed 
 	
