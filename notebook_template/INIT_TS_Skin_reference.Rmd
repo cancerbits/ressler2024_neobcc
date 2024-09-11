@@ -1,0 +1,74 @@
+---
+title: "Build azimuth compatoble skin reference from tabula sapiens"
+author: "Maud PLASCHKA"
+date: '2022-04-19'
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+The aim is to build an azimuth compatible reference for healthly skin single cell RNA-Seq from the Skin data of the Tabula Sapiens
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r open, echo=TRUE}
+library(Seurat)
+library(data.table)
+
+
+
+# Load data from UCSC Cell browser
+
+mat <- fread("https://cells.ucsc.edu/tabula-sapiens/by-organ/skin/exprMatrix.tsv.gz")
+rownames(mat) <- mat$gene
+
+meta <- data.frame(fread("https://cells.ucsc.edu/tabula-sapiens/by-organ/skin/meta.tsv"), row.names=1)
+
+so <- CreateSeuratObject(counts = mat[,-1], project = "TS_Skin", meta.data=meta, row.names=mat$gene)
+
+#s <- subset(so, subset = (nCount_RNA > 0) )
+s <- SCTransform(so, verbose = FALSE, method = "glmGamPoi", conserve.memory = TRUE)
+s <- RunPCA(s, npcs = 50, verbose = FALSE)
+ElbowPlot(s, ndims = 50)
+dims <- 1:50
+s <- RunUMAP(s, dims = dims, verbose = FALSE, return.model = TRUE)
+
+DimPlot(s, reduction = "umap", group.by = "compartment") + ggtitle("Tabula Sapiens Skin reference")
+
+
+DimPlot(s, reduction = "umap", group.by = "free_annotation")  +  guides(color = guide_legend(override.aes = list(size=2), ncol=1, label.position = "left", keyheight =0.4) ) + ggtitle("Tabula Sapiens Skin reference")
+
+
+
+
+TS_skin_azimuth <- AzimuthReference(
+  s,
+  refUMAP = "umap",
+  refDR = "pca",
+  refAssay = "SCT",
+  dims = 1:50,
+  k.param = 31,
+  plotref = "umap",
+  plot.metadata = NULL,
+  ori.index = NULL,
+  colormap = NULL,
+  assays = NULL,
+  metadata = "free_annotation",
+  reference.version = "0.0.0",
+  verbose = FALSE
+)
+
+
+# save reference in rds file
+
+saveRDS(TS_skin_azimuth, "/tabula_sapiens/TS_skin_AzimuthReference.rds")
+
+
+```
