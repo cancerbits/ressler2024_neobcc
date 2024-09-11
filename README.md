@@ -35,7 +35,7 @@ Please note, that these files need to be requested and/or downloaded before runn
 
 # Reproducing the results
 
-Paths in the config.yaml file starting with "/path/to/" will have to be set, as well as paths in [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) to reproduce the figures of the [manuscript]().
+Paths in the config.yaml file starting with "/path/to/" will have to be set, as well as paths in [`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) to reproduce the figures of the [manuscript]().
 
 To achieve high reproducibility, we suggest starting with the pre-processed `Seurat` object available on [GEO](). 
 We recommend cloning this github repository and saving the `Seurat` object in the `data` subdirectory directory. 
