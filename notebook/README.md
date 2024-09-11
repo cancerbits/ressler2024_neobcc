@@ -7,7 +7,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 This directory holds the `.md` notebooks that have been generated with [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R)
 
 For each figure, the `md` report containing code and plots can be downloaded.
-Of note, due to size limitation on `github`, most of the `md` notbook are not rendered properly. 
+Of note, due to size limitation on `github`, most of the `md` notbooks are not rendered properly. 
 An alternative is to download the `html` notebook that have been generated for each figure and contains both code and plot.
 
 ## Link to `md` notebooks
