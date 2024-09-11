@@ -6,24 +6,24 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 ## Set up the environment
 
-•	project.Dockerfile defines the environment used to carry out all experiments
+•	[project.Dockerfile](https://github.com/cancerbits/ressler2024_neobcc/tree/main/project.Dockerfile) defines the environment used to carry out all experiments
 
-•	config.yaml is used to set paths
+•	[config.yaml](https://github.com/cancerbits/ressler2024_neobcc/tree/main/config.yaml) is used to set paths
 
-•	bash/ holds shell scripts to build and run the docker image, and to parse the config file
+•	[bash/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/bash) holds shell scripts to build and run the docker image, and to parse the config file
 
 
 ## `Scripts` to run the analysis
 •	[`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler et al. (2024)](). It renders every `notebook` template in notebook_template/
 
-•	notebook_template/ holds R markdown documents for the individual steps of the project, corresponding to each of the figure of the manuscript.
+•	[notebook_template/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook_template) holds R markdown documents for the individual steps of the project, corresponding to each of the figure of the manuscript.
 
-•	notebook/ holds `html` and `md` reports for the individual steps of the project, corresponding to each of the figure of the [manuscript](), generated with the corresponding `notebook_template`
+•	[notebook/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook) holds `html` and `md` reports for the individual steps of the project, corresponding to each of the figure of the [manuscript](), generated with the corresponding `notebook_template`
 
 ## Data and metadata
-•	metadata/ holds custom geneset definitions required for the analysis. We recommand to clone the github repository to avoid any path confusion. Alternatively, path can be changed at the beginning of [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
+•	[metadata/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/metadata) holds custom geneset definitions required for the analysis. We recommand to clone the github repository to avoid any path confusion. Alternatively, path can be changed at the beginning of [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
 
-•	data holds the `Seurat` objects containing pre-processed 
+•	[data](https://github.com/cancerbits/ressler2024_neobcc/tree/main/data) should hold the `Seurat` objects containing pre-processed 
 	
 - single cells
 
@@ -47,7 +47,7 @@ Please note that before being able to run `run_ressler2024.R`, you will have to 
 
 #### Tabula Sapiens Skin reference:
 
-Run in `Rmd/INIT_TS_Skin_reference.Rmd`
+Run in [`Rmd/INIT_TS_Skin_reference.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_TS_Skin_reference.Rmd)
 
 [Website](https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
 
@@ -55,13 +55,13 @@ Run in `Rmd/INIT_TS_Skin_reference.Rmd`
 
 #### human PBMC Azimuth reference:
 
-Run in `bash/get_ref_human_pbmc.sh`
+Run in [`bash/get_ref_human_pbmc.sh`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/bash/get_ref_human_pbmc.sh)
 
 [Website](https://azimuth.hubmapconsortium.org/references/#Human%20-%20PBMC)
 
 [Publication](https://www.biorxiv.org/content/10.1101/2020.10.12.335331v1)
 
-### `INIT.Rmd`
+### [`INIT.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_Ressler2024.Rmd)
 
 The INIT file allow you to pre-process and annotated the raw single cell data.
 The pre-processing includes:
@@ -76,6 +76,7 @@ The pre-processing includes:
 
 This result to the construction of the fully annotated Seurat object which is the input of every other Rmd file.
 
+# BCR- and TCR-Seq data
 
 Please note that due to confidentiality and possible patient identification with genomic data, BCR- and TCR-Seq data are only available upon request on [EGA](https://ega-archive.org/datasets/EGAD50000000371).
 
