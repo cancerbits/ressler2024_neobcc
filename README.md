@@ -14,11 +14,11 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 
 ## `Scripts` to run the analysis
-•	[`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler et al. (2024)](). It renders every `notebook` template in notebook_template/
+•	[`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler et al. (2024)](). It renders every notebook template in notebook_template/
 
 •	[notebook_template/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook_template) holds R markdown documents for the individual steps of the project, corresponding to each of the figure of the manuscript.
 
-•	[notebook/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook) holds `html` and `md` reports for the individual steps of the project, corresponding to each of the figure of the [manuscript](), generated with the corresponding `notebook_template`
+•	[notebook/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook) holds `.html` and `.md` reports for the individual steps of the project, corresponding to each of the figure of the [manuscript](), generated with the corresponding `notebook_template`
 
 ## Data and metadata
 •	[metadata/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/metadata) holds custom geneset definitions required for the analysis. We recommand to clone the github repository to avoid any path confusion. Alternatively, path can be changed at the beginning of [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R). 
