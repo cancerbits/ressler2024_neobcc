@@ -6,13 +6,13 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 This directory holds the `.Rmd` notebook templates that allow the reproducibility of the plots of the manuscript.
 
-- [Figure 3]()
-- [Figure 4]()
-- [Figure 5]()
-- [Extended Data Figure 6]()
-- [Extended Data Figure 7]()
-- [Extended Data Figure 8]()
-- [Extended Data Figure 9]()
-- [Extended Data Figure 10]()
+- [Figure 3](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/Figure3.Rmd)
+- [Figure 4](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/Figure4.Rmd)
+- [Figure 5](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/Figure5.Rmd)
+- [Extended Data Figure 6](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/ExtendedData_Figure6.Rmd)
+- [Extended Data Figure 7](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/ExtendedData_Figure7.Rmd)
+- [Extended Data Figure 8](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/ExtendedData_Figure8.Rmd)
+- [Extended Data Figure 9](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/ExtendedData_Figure9.Rmd)
+- [Extended Data Figure 10](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/ExtendedData_Figure10.Rmd)
 
-The notebooks templates can be `rendered` using [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R)
+The notebooks templates can be `rendered` using [`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R)
