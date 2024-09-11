@@ -14,7 +14,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 
 ## `Scripts` to run the analysis
-•	[`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler et al. (2024)](). It renders every `notebook` template in notebook_template/
+•	[`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler et al. (2024)](). It renders every `notebook` template in notebook_template/
 
 •	[notebook_template/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook_template) holds R markdown documents for the individual steps of the project, corresponding to each of the figure of the manuscript.
 
