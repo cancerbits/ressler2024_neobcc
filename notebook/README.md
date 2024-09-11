@@ -1,4 +1,4 @@
-# Code repository for the analysis of single-cell RNA-seq, TCR- and BCR-Seq data presented in Ressler JM et al., 2024
+# Code and plot repository for the analysis of single-cell RNA-seq, TCR- and BCR-Seq data presented in Ressler JM et al., 2024
 Maud Plaschka and Florian Halbritter
 St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
