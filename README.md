@@ -31,7 +31,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 	
 - BCR-Seq data.
 
-Please note, that these files need o be requested and/or downloaded before running the analysis, see instructions bellow.  
+Please note, that these files need to be requested and/or downloaded before running the analysis, see instructions bellow.  
 
 # Reproducing the results
 
