@@ -6,11 +6,11 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 This directory holds the `.md` notebooks that have been generated with [`run_ressler2024.R` script](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R)
 
-For each figure, the `md` report containing code and plots can be downloaded.
-Of note, due to size limitation on `github`, most of the `md` notbooks are not rendered properly. 
-An alternative is to download the `html` notebook that have been generated for each figure and contains both code and plot.
+For each figure, the `.md` report containing code and plots can be downloaded.
+Of note, due to size limitation on `github`, most of the `.md` notbooks are not rendered properly. 
+An alternative is to download the `.html` notebook that have been generated for each figure and contains both code and plot.
 
-## Link to `md` notebooks
+## Links to `.md` notebooks
 - [Figure 3](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure3.md)
 - [Figure 4](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure4.md)
 - [Figure 5](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure5.md)
@@ -20,7 +20,7 @@ An alternative is to download the `html` notebook that have been generated for e
 - [Extended Data Figure 9](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure9.md)
 - [Extended Data Figure 10](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure10.md)
 
-## Link to `html` notebooks
+## Links to `.html` notebooks
 - [Figure 3](https://github.com/cancerbits/ressler2024_neobcc/blob/main/home/rstudio/notebook/Figure3.html)
 - [Figure 4](https://github.com/cancerbits/ressler2024_neobcc/blob/main/home/rstudio/notebook/Figure4.html)
 - [Figure 5](https://github.com/cancerbits/ressler2024_neobcc/blob/main/home/rstudio/notebook/Figure5.html)
