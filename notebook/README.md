@@ -8,14 +8,14 @@ This directory holds the `.md` and `html` notebooks that have been generated wit
 
 For each figure, the `html` report containing code and plots can be downloaded.
 
-- [Figure 3](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure3.html)
-- [Figure 4](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure4.html)
-- [Figure 5](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure5.html)
-- [Extended Data Figure 6](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure6.html)
-- [Extended Data Figure 7](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure7.html)
-- [Extended Data Figure 8](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure8.html)
-- [Extended Data Figure 9](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure9.html)
-- [Extended Data Figure 10](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure10.html)
+- [Figure 3](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure3.md)
+- [Figure 4](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure4.md)
+- [Figure 5](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/Figure5.md)
+- [Extended Data Figure 6](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure6.md)
+- [Extended Data Figure 7](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure7.md)
+- [Extended Data Figure 8](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure8.md)
+- [Extended Data Figure 9](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure9.md)
+- [Extended Data Figure 10](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook/ExtendedData_Figure10.md)
 
   
 
