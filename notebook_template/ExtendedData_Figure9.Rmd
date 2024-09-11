@@ -11,10 +11,7 @@ output:
     df_print: kable
     keep_md: true
 params:
-  sample_name: ~
-  sample_path: ~
-  out_rds_path: ~
-  path_to_data: "20241005_Ressler2024_NeoBCC.Rds"
+  path_to_data: ~
 ---
 
 ```{r setup, include=FALSE}
@@ -152,7 +149,7 @@ p1 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -180,7 +177,7 @@ p2 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -207,7 +204,7 @@ p3 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -233,7 +230,7 @@ p4 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -260,7 +257,7 @@ p5 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -286,7 +283,7 @@ p6 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -313,7 +310,7 @@ p7 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -339,7 +336,7 @@ p8 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -366,7 +363,7 @@ p9 <- ggpaired(tmp,
                       label = "p.format", 
                       label.x.npc = "center", 
                       bracket.size = 1, 
-                      comparison = list(c("CR", "SD"), c("SD", "PR"), c("CR", "PR")), 
+                      comparison = list(c("pCR", "non-pCR")),
                       size = 8)  +
   theme(text = element_text(size = 18),axis.text.x = element_text(angle = 90,  vjust=0.5)) 
 
@@ -650,7 +647,7 @@ DT::datatable(rbind(p1$data, p2$data, p3$data, p4$data, p5$data, p6$data, p7$dat
 
 # Extended Data Figure 9b
 
-```{r  EDF9b, echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='100%'}
+```{r  EDF9b, echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='50%'}
 
 p1 <- Seurat::VlnPlot(s, 
                      features = "HLA-DRA", 
@@ -756,7 +753,7 @@ DT::datatable(p4$data,
 # Extended Data Figure 9C
 
 
-```{r EDF5c,  echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='100%'}
+```{r EDF5c,  echo=TRUE, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, out.width='50%'}
 
 p1 <- Seurat::VlnPlot(s, 
                      features = "PRF1", 
@@ -844,6 +841,12 @@ DT::datatable(p3$data,
 
 
 
+
+# Session Info
+
+```{r , fig.height=8, fig.width=20, message=FALSE, warning=FALSE,  out.width='100%'}
+sessionInfo()
+```
 
 
 

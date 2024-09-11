@@ -11,10 +11,7 @@ output:
     df_print: kable
     keep_md: true
 params:
-  sample_name: ~
-  sample_path: ~
-  out_rds_path: ~
-  path_to_data: "20241005_Ressler2024_NeoBCC.Rds"
+  path_to_data: ~
 ---
 
 ```{r setup, include=TRUE}
@@ -59,6 +56,7 @@ srat <- AddMetaData(srat, meta$WHO, col.name = "WHO")
 srat$WHO <- factor(srat$WHO, levels = c("CR", "PR", "SD"))
 
 ```
+
 ## Define levels and colors
 
 ```{r echo=TRUE, fig.height=25, fig.width=25, message=FALSE, warning=FALSE, out.width='100%'}
@@ -103,7 +101,7 @@ colors <- c("Malignant cells" = "#bd0026",
 
 # Figure 3a
 
-```{r Fig3a, eval=TRUE, fig.height=8, fig.width=8, message=FALSE, warning=FALSE,  out.width='100%'}
+```{r Fig3a, eval=TRUE, fig.height=8, fig.width=8, message=FALSE, warning=FALSE,  out.width='50%'}
 
 p <- SCpubr::do_DimPlot(sample = srat, 
                   colors.use = colors, 
@@ -154,7 +152,10 @@ p <- SCpubr::do_DotPlot(sample = srat,
                         font.size = 25, 
                         legend.length = 4,  
                         legend.type = "colorbar", 
-                        dot.scale = 8)
+                        dot.scale = 8,
+                        sequential.palette ="PiYG",
+                        scale = TRUE,
+                        sequential.direction = -1)
 p
 
 DT::datatable(p$data, 
@@ -164,111 +165,7 @@ DT::datatable(p$data,
               buttons = c( 'csv', 'excel')))
 ```
 
-# Not included in the final version of the manuscript
 
-```{r , fig.height=8, fig.width=20, message=FALSE, warning=FALSE,  out.width='100%'}
-# Subset immune / non-immune cells
-imm <- subset(srat, subset = anno_l1 %in% c("other",
-                                                                 "Mast cells",
-                                                                 
-                                                                 "Mono-Mac",
-                                                                 "LC",
-                                                                 "DC",
-                                                                 "pDC",
-                                                                 "Plasma cells",
-                                                                 "B cells" ,
-                                                                 "Proliferating cells",
-                                                                 "Natural killer cells",
-                                                                 "CD8+ T cells",
-                                                                 "Tregs",
-                                                                  "CD4+ T cells" ))
-
-
-other <- subset(srat,subset = anno_l1 %in% c("Malignant cells",
-                                                                 "Keratinocytes",
-                                                                 "Fibroblasts",
-                                                                 "Endothelial cells",
-                                                                 "Melanocytes"))
-
-imm$anno_l1 <- droplevels(imm$anno_l1)
-other$anno_l1 <- droplevels(other$anno_l1)
-
-# subset pCR and nonpCR for each subset
-
-pCR_imm <- subset(imm, subset = Pathological.Response == "pCR" )
-
-nonpCR_imm <- subset(imm, subset = Pathological.Response == "non-pCR")
-
-pCR_other <- subset(other, subset = Pathological.Response == "pCR" )
-
-nonpCR_other <- subset(other, subset = Pathological.Response == "non-pCR")
-
-
-### plots
-
-d1 <- SCpubr::do_BarPlot(pCR_other,
-                         group.by = "anno_l1",
-                         split.by = "patient",
-                         position = "fill",
-                         order=FALSE,
-                         legend.position = "none",
-                   flip = TRUE,
-                   font.size = 14,
-                   colors.use = colors,
-                   ylab = "CD45- EPCAM+")
-
-d2 <- SCpubr::do_BarPlot(nonpCR_other,
-                         group.by = "anno_l1",
-                         split.by = "patient",
-                         position = "fill",
-                         order=FALSE,
-                         legend.position = "none",
-                   flip = TRUE,
-                   font.size = 14,
-                   colors.use = colors,
-                   ylab = "CD45- EPCAM+")
-
-
-
-d3 <- SCpubr::do_BarPlot(pCR_imm,
-                         group.by = "anno_l1",
-                         split.by = "patient",
-                         position = "fill",
-                         order=FALSE,
-                         legend.position = "none",
-                   flip = TRUE,
-                   font.size = 20,
-                   colors.use = colors,
-                   ylab = "CD45+ EPCAM-")
-
-d4 <- SCpubr::do_BarPlot(nonpCR_imm,
-                         group.by = "anno_l1",
-                         split.by = "patient",
-                         position = "fill",
-                         order=FALSE,
-                         legend.position = "none",
-                   flip = TRUE,
-                   font.size = 20,
-                   colors.use = colors,
-                   ylab = "CD45+ EPCAM-")
-
-
-
-
-
-p <- d3 +  d4  + plot_layout(ncol = 1, heights = c(1,2))
-p
-DT::datatable(d3$data, 
-              caption = ("Figure 2Ga"),
-              extensions = 'Buttons', 
-              options = list( dom = 'Bfrtip',
-              buttons = c( 'csv', 'excel')))
-DT::datatable(d4$data, 
-              caption = ("Figure 2Gb"),
-              extensions = 'Buttons', 
-              options = list( dom = 'Bfrtip',
-              buttons = c( 'csv', 'excel')))
-```
 
 # Session Info
 

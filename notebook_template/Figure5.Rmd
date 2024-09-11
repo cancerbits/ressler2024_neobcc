@@ -11,12 +11,9 @@ output:
     df_print: kable
     keep_md: true
 params:
-  sample_name: ~
-  sample_path: ~
-  out_rds_path: ~
-  path_to_data: "20241005_Ressler2024_NeoBCC.Rds"
+  path_to_data: ~
   accessibility: "lock"
-  path_to_BCR: "Ressler2024/metadata/100_CombinedBCR.Rds"
+  path_to_BCR: ~
 
 ---
 
@@ -78,7 +75,7 @@ srat$WHO <- factor(srat$WHO, levels = c("CR", "PR", "SD"))
 
 ```
 
-## colors
+## Define colors
 
 ```{r}
 colors_B <- c(
@@ -113,7 +110,7 @@ colors_Ig = c("IGHA1" = "#addd8e",
 
 # Figure 5a
 
-```{r Figure5a, echo=TRUE, fig.height=4, fig.width=4, out.width='100%'}
+```{r Figure5a, echo=TRUE, fig.height=4, fig.width=4, out.width='50%'}
 
 s   <- subset(srat, subset = anno_l1 %in% c("B cells","Plasma cells"))
 
@@ -160,8 +157,9 @@ p <- SCpubr::do_DotPlot(sample = s,
                         legend.length = 12,  
                         legend.type = "colorbar", 
                         dot.scale = 8,  
-                        colors.use  = c("#7fbc41","#b8e186", "#f7f7f7","#fde0ef", "#c51b7d"), 
-                        use_viridis = FALSE
+                        sequential.palette ="PiYG",
+                        scale = TRUE,
+                        sequential.direction = -1
 ) 
 
 p
@@ -174,7 +172,7 @@ DT::datatable(p$data,
 
 # Figure 5c
 
-```{r Figure5c, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='100%'}
+```{r Figure5c, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='50%'}
 
 q1 <- SCpubr::do_BarPlot( s,
                          group.by = "seurat_clusters",
@@ -203,7 +201,7 @@ DT::datatable(q1$data,
 ```
 
 
-```{r Figure5c.1, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='100%'}
+```{r Figure5c.1, fig.height=5, fig.width=10, message=FALSE, warning=FALSE,  out.width='50%'}
 
 q1 <- SCpubr::do_BarPlot( s,
                          group.by = "seurat_clusters",
@@ -280,7 +278,7 @@ merge_combined <- bind_rows(combined, .id = "sample")
 
 ```{r  echo=TRUE, fig.height=5, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 if(params$accessibility == "unlock"){
-  combined <- readRDS(file.path("../",params$path_to_BCR))
+  combined <- readRDS(file.path(params$path_to_BCR))
   
   srat <- RenameCells(srat,new.names = paste0(srat$patient, "_",gsub("(_1|_2|_3|_4|_5|_6|_7|_8|_9)*", "",colnames(srat))))
   srat <- RenameCells(srat,new.names = gsub("_post", "",colnames(srat)))
@@ -447,7 +445,7 @@ p <- ggplot(tmp, aes(Count, ID)) +
 p
 
 DT::datatable(p$data, 
-              caption = ("Figure 3I"),
+              caption = ("Figure 5f"),
               extensions = 'Buttons', 
               options = list( dom = 'Bfrtip',
               buttons = c( 'csv', 'excel')))

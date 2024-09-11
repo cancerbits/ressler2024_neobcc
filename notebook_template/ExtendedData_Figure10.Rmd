@@ -11,12 +11,9 @@ output:
     df_print: kable
     keep_md: true
 params:
-  sample_name: ~
-  sample_path: ~
-  out_rds_path: ~
-  path_to_data: "20241005_Ressler2024_NeoBCC.Rds"
-  accessibility: "unlock"
-  path_to_BCR: "Ressler2024/metadata/100_CombinedBCR.Rds"
+  path_to_data: ~
+  accessibility: "lock"
+  path_to_BCR: ~
 ---
 
 ```{r setup, include=FALSE}
@@ -49,8 +46,8 @@ library(viridis)
 library(tidyr)
 
 library(grDevices)
-library(ggpubr)
 library(ggplot2)
+library(ggpubr)
 library(ggnewscale)
 
 library(RColorBrewer)
@@ -176,7 +173,7 @@ merge_combined <- bind_rows(combined, .id = "sample")
 
 ```{r echo=TRUE, fig.height=5, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 if(params$accessibility == "unlock"){
-  combined <- readRDS(file.path("../",params$path_to_BCR))
+  combined <- readRDS(params$path_to_BCR)
   
   srat <- RenameCells(srat,new.names = paste0(srat$patient, "_",gsub("(_1|_2|_3|_4|_5|_6|_7|_8|_9)*", "",colnames(srat))))
   srat <- RenameCells(srat,new.names = gsub("_post", "",colnames(srat)))
@@ -205,7 +202,7 @@ if(params$accessibility == "unlock"){
 
 
 
-```{r EDF10a, echo=TRUE, fig.height=7, fig.width=5, message=FALSE, warning=FALSE, out.width='100%'}
+```{r EDF10a, echo=TRUE, fig.height=5, fig.width=5, message=FALSE, warning=FALSE, out.width='50%'}
 if(params$accessibility == "unlock"){
 
   Idents(s) <- s$seurat_clusters
@@ -227,7 +224,7 @@ if(params$accessibility == "unlock"){
   print(p1)
   
   DT::datatable(p1$data, 
-              caption = ("Extended Data Figure 9Ca"),
+              caption = ("Extended Data Figure 10a"),
               extensions = 'Buttons', 
               options = list( dom = 'Bfrtip',
               buttons = c( 'csv', 'excel')))
@@ -247,7 +244,7 @@ if(params$accessibility == "unlock"){
   print(p2)
   
    DT::datatable(p2$data, 
-              caption = ("Extended Data Figure 9Cb"),
+              caption = ("Extended Data Figure 10a"),
               extensions = 'Buttons', 
               options = list( dom = 'Bfrtip',
               buttons = c( 'csv', 'excel')))
@@ -266,7 +263,7 @@ if(params$accessibility == "unlock"){
   print(p3)
   
    DT::datatable(p3$data, 
-              caption = ("Extended Data Figure 9Cc"),
+              caption = ("Extended Data Figure 10a"),
               extensions = 'Buttons', 
               options = list( dom = 'Bfrtip',
               buttons = c( 'csv', 'excel')))
@@ -285,7 +282,7 @@ if(params$accessibility == "unlock"){
   
 print(p4)
 DT::datatable(p4$data, 
-              caption = ("Extended Data Figure 9Cd"),
+              caption = ("Extended Data Figure 10a"),
               extensions = 'Buttons', 
               options = list( dom = 'Bfrtip',
               buttons = c( 'csv', 'excel')))
@@ -1103,7 +1100,7 @@ p <- SCpubr::do_DotPlot(sample = s,
                    dot.scale = 10,  
                    colors.use = c('#fee08b',"#ffffbf", "#f7f7f7","#c2a5cf", "#542788"))
 
-p
+print(p)
 DT::datatable(p$data, 
               caption = ("EDF10d"),
               extensions = 'Buttons', 
