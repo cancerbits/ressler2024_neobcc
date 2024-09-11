@@ -47,7 +47,7 @@ Please note that before being able to run `run_ressler2024.R`, you will have to 
 
 #### Tabula Sapiens Skin reference:
 
-Run in [`Rmd/INIT_TS_Skin_reference.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_TS_Skin_reference.Rmd)
+Run in [`INIT_TS_Skin_reference.Rmd`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/notebook_template/INIT_TS_Skin_reference.Rmd)
 
 [Website](https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
 
