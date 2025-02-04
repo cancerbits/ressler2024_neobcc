@@ -1,4 +1,4 @@
-# Code repository for the analysis of single-cell RNA-seq, TCR- and BCR-Seq data presented in [Ressler JM et al., _Nature Cancer_ (2024)](https://www.nature.com/articles/s43018-024-00879-x), 
+# Code repository for the analysis of single-cell RNA-seq, TCR- and BCR-Seq data presented in [Ressler JM et al., _Nature Cancer_ (2025)](https://www.nature.com/articles/s43018-024-00879-x), 
 Maud Plaschka and Florian Halbritter
 St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
@@ -14,7 +14,7 @@ St. Anna Children's Cancer Research Institute (CCRI), Vienna, Austria
 
 
 ## `Scripts` to run the analysis
-•	[`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler JM et al., _Nature Cancer_ (2024)](https://www.nature.com/articles/s43018-024-00879-x). It renders every notebook template in notebook_template/
+•	[`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) can be run to reproduce the figures of [Ressler JM et al., _Nature Cancer_ (2025)](https://www.nature.com/articles/s43018-024-00879-x). It renders every notebook template in notebook_template/
 
 •	[notebook_template/](https://github.com/cancerbits/ressler2024_neobcc/tree/main/notebook_template) holds R markdown documents for the individual steps of the project, corresponding to each of the figure of the manuscript.
 
