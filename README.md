@@ -35,9 +35,9 @@ Please note, that these files need to be requested and/or downloaded before runn
 
 # Reproducing the results
 
-Paths in the config.yaml file starting with "/path/to/" will have to be set, as well as paths in [`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) to reproduce the figures of the [manuscript]().
+Paths in the config.yaml file starting with "/path/to/" will have to be set, as well as paths in [`run_ressler2024.R`](https://github.com/cancerbits/ressler2024_neobcc/blob/main/run_ressler2024.R) to reproduce the figures of the [manuscript](https://www.nature.com/articles/s43018-024-00879-x).
 
-To achieve high reproducibility, we suggest starting with the pre-processed `Seurat` object available on [GEO](). 
+To achieve high reproducibility, we suggest starting with the pre-processed `Seurat` object available on [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE268728). 
 We recommend cloning this github repository and saving the `Seurat` object in the `data` subdirectory directory. 
 
 If you like to start from the raw data, you can request access here [EGA](https://ega-archive.org/datasets/EGAD50000000371). 
@@ -93,11 +93,12 @@ accessibility <- "unlock"
 # Links
 
 ## Paper: 
+[Ressler et al. _Nature Cancer_ (2025)](https://www.nature.com/articles/s43018-024-00879-x)
 
 ## Data files: 
 
 Raw data files are available at The European Genome-phenome Archive [EGA](https://ega-archive.org/datasets/EGAD50000000371)
 
-Counts are available in the [GEO platform]()
+Counts are available in the [GEO platform](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE268728)
 
 
